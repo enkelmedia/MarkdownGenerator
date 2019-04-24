@@ -80,7 +80,7 @@ namespace MarkdownWikiGenerator
         {
             sb.Append("```");
             sb.AppendLine(language);
-            sb.AppendLine(code);
+            sb.AppendLine(code.TrimEnd(new[] { '\r', '\n', '\t' }));
             sb.AppendLine("```");
         }
 

@@ -179,6 +179,17 @@ namespace MarkdownWikiGenerator
 
                 mb.Code("csharp", sb.ToString());
 
+                // example
+                var example = commentLookup[type.FullName].FirstOrDefault(x => x.MemberType == MemberType.Type)?.Example ?? "";
+                if (!string.IsNullOrEmpty(example))
+                {
+                    mb.AppendLine("Example:");
+                    mb.Code("csharp", example);
+                    mb.AppendLine();
+                }
+
+                
+
                 //TODO: Add any "example"-tags
 
             }

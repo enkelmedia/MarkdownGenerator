@@ -27,6 +27,7 @@ namespace MarkdownWikiGenerator
         public string Remarks { get; set; }
         public Dictionary<string, string> Parameters { get; set; }
         public string Returns { get; set; }
+        public string Example { get; set; }
 
         public override string ToString()
         {
@@ -76,6 +77,22 @@ namespace MarkdownWikiGenerator
                         ? match.Groups[2].Value + "." + match.Groups[3].Value
                         : match.Groups[2].Value;
 
+                    var exampleXml = x.Elements("example").FirstOrDefault()?.Value.ToString()
+                                     ?? x.Element("example")?.ToString()
+                                     ?? "";
+                    if (!string.IsNullOrEmpty(exampleXml))
+                    {
+                        // find out first line inline
+                        var exampleRows = exampleXml.Split(new[] { "\r", "\n", "\t" }, StringSplitOptions.RemoveEmptyEntries);
+
+                        int count = exampleRows.First().TakeWhile(Char.IsWhiteSpace).Count();
+
+                        var trimmed = exampleRows.Select(y => y.Substring(count,y.Length - count));
+                        exampleXml = string.Join("\n", trimmed);
+                    }
+
+                    //exampleXml = string.Join("  ", exampleXml.Split(new[] {"\r", "\n", "\t"}, StringSplitOptions.RemoveEmptyEntries).Select(y => y.Trim()));
+
                     return new XmlDocumentComment {
                         MemberType = memberType,
                         ClassName = className,
@@ -83,7 +100,8 @@ namespace MarkdownWikiGenerator
                         Summary = summary.Trim(),
                         Remarks = remarks.Trim(),
                         Parameters = parameters,
-                        Returns = returns.Trim()
+                        Returns = returns.Trim(),
+                        Example = exampleXml
                     };
                 })
                 .Where(x => x != null)
