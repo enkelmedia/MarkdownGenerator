@@ -156,7 +156,7 @@ namespace MarkdownWikiGenerator
         {
             var mb = new MarkdownBuilder();
 
-            mb.HeaderWithCode(2, Beautifier.BeautifyType(type, false));
+            mb.HeaderWithCode(1, Beautifier.BeautifyType(type, false));
             mb.AppendLine();
 
             var desc = commentLookup[type.FullName].FirstOrDefault(x => x.MemberType == MemberType.Type)?.Summary ?? "";
