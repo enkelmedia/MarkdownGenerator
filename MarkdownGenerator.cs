@@ -188,8 +188,6 @@ namespace MarkdownWikiGenerator
                     mb.AppendLine();
                 }
 
-                
-
                 //TODO: Add any "example"-tags
 
             }
@@ -225,12 +223,12 @@ namespace MarkdownWikiGenerator
                         var markd = Beautifier.ToMarkdownMethodInfo(met);
                         mb.Header(3, markd);
 
-                        var methodDocs = docs.FirstOrDefault(x => x.MemberName == met.Name);
+                        var methodDocs = docs.FirstOrDefault(x => x.MemberName == met.Name || x.MemberName.StartsWith(met.Name + "`"));
 
                         // The method summery
                         string summary = string.Empty;
                         if (methodDocs != null)
-                            summary = docs.FirstOrDefault(x => x.MemberName == met.Name).Summary;
+                            summary = methodDocs.Summary;
                         mb.AppendLine($"{summary}");
                             
                         // return type
@@ -263,6 +261,17 @@ namespace MarkdownWikiGenerator
                         mb.AppendLine();
                         mb.Table(tbHeads,tbData);
 
+                        if(methodDocs!= null)
+                        { 
+                            var example = methodDocs.Example;
+                            if (!string.IsNullOrEmpty(example))
+                            {
+                                mb.AppendLine("Example:");
+                                mb.Code("csharp", example);
+                                mb.AppendLine();
+                            }
+                        }
+
                         mb.AppendLine();
 
                         //TODO: List methods with a table for each parameter in the method, under the table show any "example"-elements from the docs.
@@ -273,7 +282,81 @@ namespace MarkdownWikiGenerator
 
                 BuildTable(mb, "Static Fields", GetStaticFields(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.FieldType), x => x.Name, x => x.Name);
                 BuildTable(mb, "Static Properties", GetStaticProperties(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.PropertyType), x => x.Name, x => x.Name);
-                BuildTable(mb, "Static Methods", GetStaticMethods(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.ReturnType), x => x.Name, x => Beautifier.ToMarkdownMethodInfo(x));
+
+                // static methods
+                var staticMethods = GetStaticMethods();
+
+                if (staticMethods.Any())
+                {
+
+                    mb.Header(2, "Static Methods");
+
+                    foreach (var met in staticMethods)
+                    {
+                        var docs = commentLookup[type.FullName];
+                        var returnType = Beautifier.BeautifyType(met.ReturnType);
+                        var markd = Beautifier.ToMarkdownMethodInfo(met);
+                        mb.Header(3, markd);
+
+                        var methodDocs = docs.FirstOrDefault(x => x.MemberName == met.Name || x.MemberName.StartsWith(met.Name + "`"));
+
+                        // The method summery
+                        string summary = string.Empty;
+                        if (methodDocs != null)
+                            summary = methodDocs.Summary;
+                        mb.AppendLine($"{summary}");
+
+                        // return type
+                        mb.AppendLine($"returnType: {returnType}");
+                        mb.AppendLine();
+
+                        // parameters
+                        mb.Header(4, "Parameters");
+                        string[] tbHeads = new string[] { "Name", "Type", "Summary" };
+                        List<string[]> tbData = new List<string[]>();
+
+                        foreach (var par in met.GetParameters())
+                        {
+                            List<string> tbParData = new List<string>();
+                            tbParData.Add(par.Name);
+                            tbParData.Add(Beautifier.BeautifyType(par.ParameterType));
+
+                            if (methodDocs != null && methodDocs.Parameters != null && methodDocs.Parameters.Any(x => x.Key == par.Name))
+                            {
+                                var paramDoc = methodDocs.Parameters.FirstOrDefault(x => x.Key == par.Name);
+                                tbParData.Add(paramDoc.Value);
+                            }
+                            else
+                            {
+                                tbParData.Add(string.Empty);
+                            }
+                            tbData.Add(tbParData.ToArray());
+                        }
+
+                        mb.AppendLine();
+                        mb.Table(tbHeads, tbData);
+
+                        if (methodDocs != null)
+                        {
+                            var example = methodDocs.Example;
+                            if (!string.IsNullOrEmpty(example))
+                            {
+                                mb.AppendLine("Example:");
+                                mb.Code("csharp", example);
+                                mb.AppendLine();
+                            }
+                        }
+
+                        mb.AppendLine();
+
+                        //TODO: List methods with a table for each parameter in the method, under the table show any "example"-elements from the docs.
+
+                    }
+                }
+
+                //BuildTable(mb, "Static Methods", GetStaticMethods(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.ReturnType), x => x.Name, x => Beautifier.ToMarkdownMethodInfo(x));
+
+
                 BuildTable(mb, "Static Events", GetStaticEvents(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.EventHandlerType), x => x.Name, x => x.Name);
             }
 

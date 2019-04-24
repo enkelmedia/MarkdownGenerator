@@ -86,7 +86,6 @@ namespace MarkdownWikiGenerator
                         var exampleRows = exampleXml.Split(new[] { "\r", "\n", "\t" }, StringSplitOptions.RemoveEmptyEntries);
 
                         int count = exampleRows.First().TakeWhile(Char.IsWhiteSpace).Count();
-
                         var trimmed = exampleRows.Select(y => y.Substring(count,y.Length - count));
                         exampleXml = string.Join("\n", trimmed);
                     }
