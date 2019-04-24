@@ -214,14 +214,14 @@ namespace MarkdownWikiGenerator
                 if (methods.Any())
                 { 
 
-                    mb.Header(2,"Methods");
+                    mb.Header(3,"Methods");
 
                     foreach (var met in methods)
                     {
                         var docs = commentLookup[type.FullName];
                         var returnType = Beautifier.BeautifyType(met.ReturnType);
                         var markd = Beautifier.ToMarkdownMethodInfo(met);
-                        mb.Header(3, markd);
+                        mb.Header(4, markd);
 
                         var methodDocs = docs.FirstOrDefault(x => x.MemberName == met.Name || x.MemberName.StartsWith(met.Name + "`"));
 
@@ -236,32 +236,37 @@ namespace MarkdownWikiGenerator
                         mb.AppendLine();
 
                         // parameters
-                        mb.Header(4,"Parameters");
-                        string[] tbHeads = new string[]{"Name","Type","Summary"};
-                        List<string[]> tbData = new List<string[]>();
+                        var methodParameters = met.GetParameters();
+                        if(methodParameters.Any())
+                        { 
+                            mb.Header(5,"Parameters");
+                            string[] tbHeads = new string[]{"Name","Type","Summary"};
+                            List<string[]> tbData = new List<string[]>();
 
-                        foreach (var par in met.GetParameters())
-                        {
-                            List<string> tbParData = new List<string>();
-                            tbParData.Add(par.Name);
-                            tbParData.Add(Beautifier.BeautifyType(met.ReturnType));
-                            
-                            if (methodDocs != null && methodDocs.Parameters != null && methodDocs.Parameters.Any(x => x.Key == par.Name))
+                            foreach (var par in methodParameters)
                             {
-                                var paramDoc = methodDocs.Parameters.FirstOrDefault(x => x.Key == par.Name);
-                                tbParData.Add(paramDoc.Value);
+                                List<string> tbParData = new List<string>();
+                                tbParData.Add(par.Name);
+                                tbParData.Add(Beautifier.BeautifyType(met.ReturnType));
+                                
+                                if (methodDocs != null && methodDocs.Parameters != null && methodDocs.Parameters.Any(x => x.Key == par.Name))
+                                {
+                                    var paramDoc = methodDocs.Parameters.FirstOrDefault(x => x.Key == par.Name);
+                                    tbParData.Add(paramDoc.Value);
+                                }
+                                else
+                                {
+                                    tbParData.Add(string.Empty);
+                                }
+                                tbData.Add(tbParData.ToArray());
                             }
-                            else
-                            {
-                                tbParData.Add(string.Empty);
-                            }
-                            tbData.Add(tbParData.ToArray());
+
+                            mb.AppendLine();
+                            mb.Table(tbHeads,tbData);
+
                         }
 
-                        mb.AppendLine();
-                        mb.Table(tbHeads,tbData);
-
-                        if(methodDocs!= null)
+                        if (methodDocs!= null)
                         { 
                             var example = methodDocs.Example;
                             if (!string.IsNullOrEmpty(example))
@@ -289,14 +294,14 @@ namespace MarkdownWikiGenerator
                 if (staticMethods.Any())
                 {
 
-                    mb.Header(2, "Static Methods");
+                    mb.Header(3, "Static Methods");
 
                     foreach (var met in staticMethods)
                     {
                         var docs = commentLookup[type.FullName];
                         var returnType = Beautifier.BeautifyType(met.ReturnType);
                         var markd = Beautifier.ToMarkdownMethodInfo(met);
-                        mb.Header(3, markd);
+                        mb.Header(4, markd);
 
                         var methodDocs = docs.FirstOrDefault(x => x.MemberName == met.Name || x.MemberName.StartsWith(met.Name + "`"));
 
@@ -311,7 +316,7 @@ namespace MarkdownWikiGenerator
                         mb.AppendLine();
 
                         // parameters
-                        mb.Header(4, "Parameters");
+                        mb.Header(5, "Parameters");
                         string[] tbHeads = new string[] { "Name", "Type", "Summary" };
                         List<string[]> tbData = new List<string[]>();
 
