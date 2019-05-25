@@ -188,8 +188,6 @@ namespace MarkdownWikiGenerator
                     mb.AppendLine();
                 }
 
-                //TODO: Add any "example"-tags
-
             }
 
             mb.AppendLine();
