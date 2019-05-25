@@ -118,13 +118,6 @@ namespace MarkdownWikiGenerator
             // using the first line of the string to figure out the how many chars indentation that are used.
             int indentationCharCount = stringRow.Last().TakeWhile(Char.IsWhiteSpace).Count();
 
-            //if (stringRow.Length > 1)
-            //{
-            //    int indentationCharCount2Row = stringRow[1].TakeWhile(Char.IsWhiteSpace).Count();
-            //    if (indentationCharCount2Row > indentationCharCount)
-            //        indentationCharCount = indentationCharCount2Row;
-            //}
-
             for (int i = 0; i < stringRow.Length; i++)
             {
                 int indentationCharCountCurrentRow = stringRow[i].TakeWhile(Char.IsWhiteSpace).Count();
@@ -134,9 +127,6 @@ namespace MarkdownWikiGenerator
                     stringRow[i] = stringRow[i].Substring(indentationCharCount, stringRow[i].Length - indentationCharCount);
                 }
             }
-
-            // creating a new collection with trimmed string lines
-//            var trimmed = stringRow.Select(y => y.Substring(indentationCharCount, y.Length - indentationCharCount));
 
             return string.Join("\n", stringRow);
         }

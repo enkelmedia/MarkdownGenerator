@@ -155,6 +155,7 @@ namespace MarkdownWikiGenerator
         public override string ToString()
         {
             var mb = new MarkdownBuilder();
+            mb.AppendLine("<br/><hr>");
 
             mb.HeaderWithCode(1, Beautifier.BeautifyType(type, false));
             mb.AppendLine();
@@ -183,7 +184,7 @@ namespace MarkdownWikiGenerator
                 var example = commentLookup[type.FullName].FirstOrDefault(x => x.MemberType == MemberType.Type)?.Example ?? "";
                 if (!string.IsNullOrEmpty(example))
                 {
-                    mb.AppendLine("Example:");
+                    mb.Header(6, "Example:");
                     mb.Append(example);
                     mb.AppendLine();
                 }
@@ -269,7 +270,7 @@ namespace MarkdownWikiGenerator
                             var example = methodDocs.Example;
                             if (!string.IsNullOrEmpty(example))
                             {
-                                mb.AppendLine("Example:");
+                                mb.Header(6, "Example:");
                                 mb.Append(example);
                                 mb.AppendLine();
                             }
@@ -344,7 +345,7 @@ namespace MarkdownWikiGenerator
                             var example = methodDocs.Example;
                             if (!string.IsNullOrEmpty(example))
                             {
-                                mb.AppendLine("Example:");
+                                mb.Header(6,"Example:");
                                 mb.Append(example);
                                 mb.AppendLine();
                             }
