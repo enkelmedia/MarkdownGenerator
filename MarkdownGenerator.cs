@@ -208,6 +208,7 @@ namespace MarkdownWikiGenerator
                 BuildTable(mb, "Properties", GetProperties(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.PropertyType), x => x.Name, x => x.Name);
                 BuildTable(mb, "Events", GetEvents(), commentLookup[type.FullName], x => Beautifier.BeautifyType(x.EventHandlerType), x => x.Name, x => x.Name);
 
+                // methods
                 var methods = GetMethods();
 
                 if (methods.Any())
@@ -265,6 +266,37 @@ namespace MarkdownWikiGenerator
 
                         }
 
+                        // type parameters
+                        var typeParameters = met.GetGenericArguments();
+                        if (typeParameters.Any())
+                        {
+                            mb.Header(5, "Type Parameters");
+                            string[] tbHeads = new string[] { "Name", "Summary" };
+                            List<string[]> tbData = new List<string[]>();
+
+                            foreach (var par in typeParameters)
+                            {
+                                List<string> tbParData = new List<string>();
+                                tbParData.Add(par.Name);
+                                //tbParData.Add(Beautifier.BeautifyType(met.ReturnType));
+
+                                if (methodDocs != null && methodDocs.TypeParameters != null && methodDocs.TypeParameters.Any(x => x.Key == par.Name))
+                                {
+                                    var paramDoc = methodDocs.TypeParameters.FirstOrDefault(x => x.Key == par.Name);
+                                    tbParData.Add(paramDoc.Value);
+                                }
+                                else
+                                {
+                                    tbParData.Add(string.Empty);
+                                }
+                                tbData.Add(tbParData.ToArray());
+                            }
+
+                            mb.AppendLine();
+                            mb.Table(tbHeads, tbData);
+                        }
+
+
                         if (methodDocs!= null)
                         { 
                             var example = methodDocs.Example;
@@ -315,30 +347,64 @@ namespace MarkdownWikiGenerator
                         mb.AppendLine();
 
                         // parameters
-                        mb.Header(5, "Parameters");
-                        string[] tbHeads = new string[] { "Name", "Type", "Summary" };
-                        List<string[]> tbData = new List<string[]>();
-
-                        foreach (var par in met.GetParameters())
+                        var methodParameters = met.GetParameters();
+                        if (methodParameters.Any())
                         {
-                            List<string> tbParData = new List<string>();
-                            tbParData.Add(par.Name);
-                            tbParData.Add(Beautifier.BeautifyType(par.ParameterType));
+                            mb.Header(5, "Parameters");
+                            string[] tbHeads = new string[] { "Name", "Type", "Summary" };
+                            List<string[]> tbData = new List<string[]>();
 
-                            if (methodDocs != null && methodDocs.Parameters != null && methodDocs.Parameters.Any(x => x.Key == par.Name))
+                            foreach (var par in met.GetParameters())
                             {
-                                var paramDoc = methodDocs.Parameters.FirstOrDefault(x => x.Key == par.Name);
-                                tbParData.Add(paramDoc.Value);
+                                List<string> tbParData = new List<string>();
+                                tbParData.Add(par.Name);
+                                tbParData.Add(Beautifier.BeautifyType(par.ParameterType));
+
+                                if (methodDocs != null && methodDocs.Parameters != null && methodDocs.Parameters.Any(x => x.Key == par.Name))
+                                {
+                                    var paramDoc = methodDocs.Parameters.FirstOrDefault(x => x.Key == par.Name);
+                                    tbParData.Add(paramDoc.Value);
+                                }
+                                else
+                                {
+                                    tbParData.Add(string.Empty);
+                                }
+                                tbData.Add(tbParData.ToArray());
                             }
-                            else
-                            {
-                                tbParData.Add(string.Empty);
-                            }
-                            tbData.Add(tbParData.ToArray());
+
+                            mb.AppendLine();
+                            mb.Table(tbHeads, tbData);
                         }
 
-                        mb.AppendLine();
-                        mb.Table(tbHeads, tbData);
+                        // Type parameters
+                        var typeParameters = met.GetGenericArguments();
+                        if (typeParameters.Any())
+                        {
+                            mb.Header(5, "Type Parameters");
+                            string[] tbHeads = new string[] { "Name", "Summary" };
+                            List<string[]> tbData = new List<string[]>();
+
+                            foreach (var par in typeParameters)
+                            {
+                                List<string> tbParData = new List<string>();
+                                tbParData.Add(par.Name);
+                                //tbParData.Add(Beautifier.BeautifyType(met.ReturnType));
+
+                                if (methodDocs != null && methodDocs.TypeParameters != null && methodDocs.TypeParameters.Any(x => x.Key == par.Name))
+                                {
+                                    var paramDoc = methodDocs.TypeParameters.FirstOrDefault(x => x.Key == par.Name);
+                                    tbParData.Add(paramDoc.Value);
+                                }
+                                else
+                                {
+                                    tbParData.Add(string.Empty);
+                                }
+                                tbData.Add(tbParData.ToArray());
+                            }
+
+                            mb.AppendLine();
+                            mb.Table(tbHeads, tbData);
+                        }
 
                         if (methodDocs != null)
                         {

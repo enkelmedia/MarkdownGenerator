@@ -25,7 +25,17 @@ namespace MarkdownWikiGenerator
         public string MemberName { get; set; }
         public string Summary { get; set; }
         public string Remarks { get; set; }
+
+        /// <summary>
+        /// Holds values for the param-elements in the XML doc.
+        /// </summary>
         public Dictionary<string, string> Parameters { get; set; }
+
+        /// <summary>
+        /// Holds values for the typeparam-elements in the XML doc.
+        /// </summary>
+        public Dictionary<string, string> TypeParameters { get; set; }
+
         public string Returns { get; set; }
         public string Example { get; set; }
 
@@ -58,11 +68,6 @@ namespace MarkdownWikiGenerator
                         ?? x.Element("summary")?.ToString()
                         ?? "";
 
-                    //summaryXml = Regex.Replace(summaryXml, @"<\/?summary>", string.Empty);
-                    //summaryXml = Regex.Replace(summaryXml, @"<para\s*/>", Environment.NewLine);
-                    //summaryXml = Regex.Replace(summaryXml, @"<see cref=""\w:([^\""]*)""\s*\/>", m => ResolveSeeElement(m, assemblyName));
-                    //var parsed = Regex.Replace(summaryXml, @"<(type)*paramref name=""([^\""]*)""\s*\/>", e => $"`{e.Groups[1].Value}`");
-
                     var summary = ParseXmlElementString(summaryXml,"summary",assemblyName);
 
                     if (summary != "") {
@@ -74,13 +79,16 @@ namespace MarkdownWikiGenerator
                     var parameters = x.Elements("param")
                         .Select(e => Tuple.Create(e.Attribute("name").Value, e))
                         .Distinct(new Item1EqualityCompaerer<string, XElement>())
-                        .ToDictionary(e => e.Item1, e => e.Item2.Value);
+                        .ToDictionary(e => e.Item1, e => ParseXmlElementString(e.Item2.Value,"",assemblyName));
+
+                    var typeParameters = x.Elements("typeparam")
+                        .Select(e => Tuple.Create(e.Attribute("name").Value, e))
+                        .Distinct(new Item1EqualityCompaerer<string, XElement>())
+                        .ToDictionary(e => e.Item1, e => ParseXmlElementString(e.Item2.ToString(),"",assemblyName));
 
                     var className = (memberType == MemberType.Type)
                         ? match.Groups[2].Value + "." + match.Groups[3].Value
                         : match.Groups[2].Value;
-
-                    //TODO: Support multiple examples
 
                     var exampleXml = x.Elements("example").FirstOrDefault()?.ToString()
                                      ?? x.Element("example")?.ToString()
@@ -88,11 +96,8 @@ namespace MarkdownWikiGenerator
 
                     if (!string.IsNullOrEmpty(exampleXml))
                     {
-                        //TODO: Add support for code
                         exampleXml = ParseXmlElementString(exampleXml, "example", assemblyName);
                         exampleXml = RemoveLineIndentationFromString(exampleXml);
-
-                        // TODO: Replace "code"-elements
                     }
 
                     return new XmlDocumentComment {
@@ -102,6 +107,7 @@ namespace MarkdownWikiGenerator
                         Summary = summary.Trim(),
                         Remarks = remarks.Trim(),
                         Parameters = parameters,
+                        TypeParameters = typeParameters,
                         Returns = returns.Trim(),
                         Example = exampleXml
                     };
