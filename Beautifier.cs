@@ -30,7 +30,26 @@ namespace MarkdownWikiGenerator
                 return "`" + BeautifyType(x.ParameterType) + "` " + x.Name + suffix;
             });
 
-            return methodInfo.Name + "(" + (isExtension ? "this " : "") + string.Join(", ", seq) + ")";
+            string genericArguments = "";
+            var genericTypeArguments = methodInfo.GetGenericArguments();
+
+            if (genericTypeArguments.Any())
+            {
+                genericArguments = "\\<";
+                foreach (var item in genericTypeArguments)
+                {
+                    genericArguments += item.Name + ",";
+                }
+
+                if (!string.IsNullOrEmpty(genericArguments))
+                {
+                    genericArguments = genericArguments.Substring(0, genericArguments.Length - 1);
+                }
+
+                genericArguments += ">";
+            }
+
+            return methodInfo.Name + genericArguments + "(" + (isExtension ? "this " : "") + string.Join(", ", seq) + ")";
         }
     }
 }
