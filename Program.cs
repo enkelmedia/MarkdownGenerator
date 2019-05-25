@@ -14,7 +14,7 @@ namespace MarkdownWikiGenerator
         static void Main(string[] args)
         {
             // put dll & xml on same diretory.
-            var target = "Obviuse.Framework.Umbraco.dll"; // :)
+            var target = "..\\MyApp\\Obviuse.Framework.Umbraco.dll"; // :)
             string dest = "md";
             string namespaceMatch = string.Empty;
             if (args.Length == 1)
