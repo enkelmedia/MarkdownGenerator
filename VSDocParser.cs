@@ -57,13 +57,13 @@ namespace MarkdownWikiGenerator
                     var summaryXml = x.Elements("summary").FirstOrDefault()?.ToString()
                         ?? x.Element("summary")?.ToString()
                         ?? "";
-                    summaryXml = Regex.Replace(summaryXml, @"<\/?summary>", string.Empty);
-                    summaryXml = Regex.Replace(summaryXml, @"<para\s*/>", Environment.NewLine);
-                    summaryXml = Regex.Replace(summaryXml, @"<see cref=""\w:([^\""]*)""\s*\/>", m => ResolveSeeElement(m, assemblyName));
 
-                    var parsed = Regex.Replace(summaryXml, @"<(type)*paramref name=""([^\""]*)""\s*\/>", e => $"`{e.Groups[1].Value}`");
+                    //summaryXml = Regex.Replace(summaryXml, @"<\/?summary>", string.Empty);
+                    //summaryXml = Regex.Replace(summaryXml, @"<para\s*/>", Environment.NewLine);
+                    //summaryXml = Regex.Replace(summaryXml, @"<see cref=""\w:([^\""]*)""\s*\/>", m => ResolveSeeElement(m, assemblyName));
+                    //var parsed = Regex.Replace(summaryXml, @"<(type)*paramref name=""([^\""]*)""\s*\/>", e => $"`{e.Groups[1].Value}`");
 
-                    var summary = parsed;
+                    var summary = ParseXmlElementString(summaryXml,"summary",assemblyName);
 
                     if (summary != "") {
                         summary = string.Join("  ", summary.Split(new[] { "\r", "\n", "\t" }, StringSplitOptions.RemoveEmptyEntries).Select(y => y.Trim()));
@@ -80,20 +80,20 @@ namespace MarkdownWikiGenerator
                         ? match.Groups[2].Value + "." + match.Groups[3].Value
                         : match.Groups[2].Value;
 
-                    var exampleXml = x.Elements("example").FirstOrDefault()?.Value.ToString()
+                    //TODO: Support multiple examples
+
+                    var exampleXml = x.Elements("example").FirstOrDefault()?.ToString()
                                      ?? x.Element("example")?.ToString()
                                      ?? "";
+
                     if (!string.IsNullOrEmpty(exampleXml))
                     {
-                        // find out first line inline
-                        var exampleRows = exampleXml.Split(new[] { "\r", "\n", "\t" }, StringSplitOptions.RemoveEmptyEntries);
+                        //TODO: Add support for code
+                        exampleXml = ParseXmlElementString(exampleXml, "example", assemblyName);
+                        exampleXml = RemoveLineIndentationFromString(exampleXml);
 
-                        int count = exampleRows.First().TakeWhile(Char.IsWhiteSpace).Count();
-                        var trimmed = exampleRows.Select(y => y.Substring(count,y.Length - count));
-                        exampleXml = string.Join("\n", trimmed);
+                        // TODO: Replace "code"-elements
                     }
-
-                    //exampleXml = string.Join("  ", exampleXml.Split(new[] {"\r", "\n", "\t"}, StringSplitOptions.RemoveEmptyEntries).Select(y => y.Trim()));
 
                     return new XmlDocumentComment {
                         MemberType = memberType,
@@ -108,6 +108,52 @@ namespace MarkdownWikiGenerator
                 })
                 .Where(x => x != null)
                 .ToArray();
+        }
+
+        private static string RemoveLineIndentationFromString(string str)
+        {
+            // Parsing the string into an array of rows to be able to remove the indentation from each row.
+            var stringRow = str.Split(new[] { "\r", "\n", "\t" }, StringSplitOptions.RemoveEmptyEntries);
+
+            // using the first line of the string to figure out the how many chars indentation that are used.
+            int indentationCharCount = stringRow.Last().TakeWhile(Char.IsWhiteSpace).Count();
+
+            //if (stringRow.Length > 1)
+            //{
+            //    int indentationCharCount2Row = stringRow[1].TakeWhile(Char.IsWhiteSpace).Count();
+            //    if (indentationCharCount2Row > indentationCharCount)
+            //        indentationCharCount = indentationCharCount2Row;
+            //}
+
+            for (int i = 0; i < stringRow.Length; i++)
+            {
+                int indentationCharCountCurrentRow = stringRow[i].TakeWhile(Char.IsWhiteSpace).Count();
+
+                if (indentationCharCountCurrentRow >= indentationCharCount)
+                {
+                    stringRow[i] = stringRow[i].Substring(indentationCharCount, stringRow[i].Length - indentationCharCount);
+                }
+            }
+
+            // creating a new collection with trimmed string lines
+//            var trimmed = stringRow.Select(y => y.Substring(indentationCharCount, y.Length - indentationCharCount));
+
+            return string.Join("\n", stringRow);
+        }
+
+        public static string ParseXmlElementString(string xml,string elementName, string assemblyName)
+        {
+            xml = Regex.Replace(xml, @"<\/?"+ elementName + ">", string.Empty);
+            xml = Regex.Replace(xml, @"<para\s*/>", Environment.NewLine);
+            xml = Regex.Replace(xml, @"<see cref=""\w:([^\""]*)""\s*\/>", m => ResolveSeeElement(m, assemblyName));
+            xml = Regex.Replace(xml, @"<(type)*paramref name=""([^\""]*)""\s*\/>", e => $"`{e.Groups[1].Value}`");
+
+            //TODO: Parse Code
+            xml = xml.Replace("<code>", "\n```csharp");
+            xml = xml.Replace("</code>", "```");
+
+
+            return xml;
         }
 
         private static string ResolveSeeElement(Match m, string ns) {

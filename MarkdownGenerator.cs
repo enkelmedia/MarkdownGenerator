@@ -184,7 +184,7 @@ namespace MarkdownWikiGenerator
                 if (!string.IsNullOrEmpty(example))
                 {
                     mb.AppendLine("Example:");
-                    mb.Code("csharp", example);
+                    mb.Append(example);
                     mb.AppendLine();
                 }
 
@@ -270,7 +270,7 @@ namespace MarkdownWikiGenerator
                             if (!string.IsNullOrEmpty(example))
                             {
                                 mb.AppendLine("Example:");
-                                mb.Code("csharp", example);
+                                mb.Append(example);
                                 mb.AppendLine();
                             }
                         }
@@ -345,7 +345,7 @@ namespace MarkdownWikiGenerator
                             if (!string.IsNullOrEmpty(example))
                             {
                                 mb.AppendLine("Example:");
-                                mb.Code("csharp", example);
+                                mb.Append(example);
                                 mb.AppendLine();
                             }
                         }
