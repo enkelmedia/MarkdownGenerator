@@ -24,14 +24,14 @@ MarkdownGenerator.exe UniRx.dll md
 Roadmap and ideas
 ---
 
-[] Support for SeeAlso to generate "related links" in the end declaration https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/seealso
-[] Support for constructors
-[] Do we support examples on a "class-level"?
-[] Nicer way to show return value
-[]
-[]
-[]
-[]
+- [ ] Support for SeeAlso to generate "related links" in the end declaration https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/seealso
+- [ ] Support for constructors
+- [ ] Do we support examples on a "class-level"?
+- [ ] Nicer way to show return value
+- [ ]
+- [ ]
+- [ ]
+- [ ]
 
 
 
