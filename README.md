@@ -28,10 +28,10 @@ Roadmap and ideas
 - [ ] Support for constructors
 - [ ] Do we support examples on a "class-level"?
 - [ ] Nicer way to show return value
-- [ ]
-- [ ]
-- [ ]
-- [ ]
+- [ ] tbd
+- [ ] tbd
+- [ ] tbd
+- [ ] tbd
 
 
 
